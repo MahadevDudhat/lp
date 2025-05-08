@@ -1,0 +1,96 @@
+#include <iostream>
+#include <vector>
+#include <omp.h>
+#include <limits.h> // For INT_MAX and INT_MIN
+
+using namespace std;
+
+// Parallel Min operation using reduction
+int parallelMin(const vector<int>& arr) {
+    int min_val = INT_MAX;
+
+    #pragma omp parallel for reduction(min: min_val)
+    for (int i = 0; i < arr.size(); ++i) {
+        min_val = min(min_val, arr[i]);
+    }
+
+    return min_val;
+}
+
+// Parallel Max operation using reduction
+int parallelMax(const vector<int>& arr) {
+    int max_val = INT_MIN;
+
+    #pragma omp parallel for reduction(max: max_val)
+    for (int i = 0; i < arr.size(); ++i) {
+        max_val = max(max_val, arr[i]);
+    }
+
+    return max_val;
+}
+
+// Parallel Sum operation using reduction
+int parallelSum(const vector<int>& arr) {
+    int sum = 0;
+
+    #pragma omp parallel for reduction(+: sum)
+    for (int i = 0; i < arr.size(); ++i) {
+        sum += arr[i];
+    }
+
+    return sum;
+}
+
+// Parallel Average operation using reduction
+double parallelAverage(const vector<int>& arr) {
+    int sum = 0;
+
+    #pragma omp parallel for reduction(+: sum)
+    for (int i = 0; i < arr.size(); ++i) {
+        sum += arr[i];
+    }
+
+    return static_cast<double>(sum) / arr.size();
+}
+
+int main() {
+    int n;
+
+    // Taking input for the size of the array
+    cout << "Enter the number of elements: ";
+    cin >> n;
+
+    vector<int> arr(n);
+
+    // Taking input for the values in the array
+    cout << "Enter " << n << " elements: ";
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+
+    // Setting number of threads for OpenMP
+    omp_set_num_threads(4); // You can change this number as per your requirement
+
+    // Perform parallel Min, Max, Sum, and Average
+    double start = omp_get_wtime();
+    int min_val = parallelMin(arr);
+    double end = omp_get_wtime();
+    cout << "Parallel Min: " << min_val << " (Time: " << end - start << " seconds)" << endl;
+
+    start = omp_get_wtime();
+    int max_val = parallelMax(arr);
+    end = omp_get_wtime();
+    cout << "Parallel Max: " << max_val << " (Time: " << end - start << " seconds)" << endl;
+
+    start = omp_get_wtime();
+    int sum_val = parallelSum(arr);
+    end = omp_get_wtime();
+    cout << "Parallel Sum: " << sum_val << " (Time: " << end - start << " seconds)" << endl;
+
+    start = omp_get_wtime();
+    double avg_val = parallelAverage(arr);
+    end = omp_get_wtime();
+    cout << "Parallel Average: " << avg_val << " (Time: " << end - start << " seconds)" << endl;
+
+    return 0;
+}
